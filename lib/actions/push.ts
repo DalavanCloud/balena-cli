@@ -154,7 +154,8 @@ export const push: CommandDefinition<
 
 		When building on a local mode device, the given source directory will be built
 		on the device, and the resulting containers will be run on the device. Logs will
-		be streamed back from the device as part of the same invocation.
+		be streamed back from the device as part of the same invocation. This requires
+		a device with a supervisor version of at least v7.21.0.
 
 		The --registry-secrets option specifies a JSON or YAML file containing private
 		Docker registry usernames and passwords to be used when pulling base images.
