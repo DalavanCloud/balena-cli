@@ -156,7 +156,7 @@
     "raven": "^2.5.0",
     "reconfix": "^0.1.0",
     "request": "^2.81.0",
-    "resin-bundle-resolve": "^0.6.0",
+    "resin-bundle-resolve": "^1.0.0",
     "resin-cli-form": "^2.0.1",
     "resin-cli-visuals": "^1.4.0",
     "resin-compose-parse": "^2.0.0",
