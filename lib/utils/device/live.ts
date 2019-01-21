@@ -99,6 +99,9 @@ export class LivepushManager {
 				livepush.on('commandOutput', output => {
 					log(`    ${output.output.toString()}`);
 				});
+				livepush.on('containerRestart', () => {
+					log(`Restarting container for service ${serviceName}`);
+				});
 
 				// TODO: Memoize this for containers which share a context
 				const monitor = chokidar.watch('.', {
@@ -197,7 +200,11 @@ export class LivepushManager {
 		livepush: Livepush,
 		serviceName: string,
 	) {
-		await livepush.performActions(updates, actions);
+		try {
+			await livepush.performActions(updates, actions);
+		} catch (e) {
+			console.log('There was an error executing commands: ', e);
+		}
 		this.logger.logLivepush(`Restarting container for service ${serviceName}`);
 	}
 }

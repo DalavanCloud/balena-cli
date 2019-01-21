@@ -86,9 +86,9 @@ export async function deployToDevice(opts: DeviceDeployOptions): Promise<void> {
 		// FIXME: DO NOT MERGE until this version number has been updated
 		// with the version which the following PR ends up in the supervisor
 		// https://github.com/balena-io/balena-supervisor/pull/828
-		if (opts.live && !semver.satisfies(version, '>=1.0.0')) {
+		if (opts.live && !semver.satisfies(version, '>=9.3.0')) {
 			exitWithExpectedError(
-				new Error('Using livepush requires a supervisor >= v1.0.0'),
+				new Error('Using livepush requires a supervisor >= v9.3.0'),
 			);
 		}
 	} catch {
@@ -135,6 +135,7 @@ export async function deployToDevice(opts: DeviceDeployOptions): Promise<void> {
 	// Print an empty newline to seperate the build output
 	// from the device output
 	console.log();
+
 	logger.logInfo('Streaming device logs...');
 	// Now all we need to do is stream back the logs
 	const logStream = await api.getLogStream();
@@ -143,6 +144,7 @@ export async function deployToDevice(opts: DeviceDeployOptions): Promise<void> {
 	// so we can either just display the logs, or start a livepush session
 	// (whilst also display logs)
 	if (opts.live) {
+		displayDeviceLogs(logStream, logger);
 		const livepush = new LivepushManager(
 			opts.source,
 			project.composition,
@@ -152,10 +154,11 @@ export async function deployToDevice(opts: DeviceDeployOptions): Promise<void> {
 			logger,
 		);
 
-		logger.logLivepush('Watching for file changes...');
 		await livepush.init();
+		logger.logLivepush('Watching for file changes...');
+	} else {
+		await displayDeviceLogs(logStream, logger);
 	}
-	await displayDeviceLogs(logStream, logger);
 }
 
 function connectToDocker(host: string, port: number): Docker {
