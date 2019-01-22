@@ -24,6 +24,7 @@ import * as sdk from 'balena-sdk';
 import * as ssh2 from 'ssh2';
 import * as stream from 'stream';
 
+import { getDeviceContainerInfo } from '../utils/containers';
 import { normalizeUuidProp } from '../utils/normalization';
 import * as patterns from '../utils/patterns';
 
@@ -234,6 +235,7 @@ export const ssh: CommandDefinition<
 					.on('error', errorHandler);
 
 				process.stdin
+					.removeAllListeners()
 					.on('data', dsWrite)
 					// make sure that the device-side stream is properly closed if userStream ends first
 					.on('end', dsEnd)
@@ -257,9 +259,11 @@ export const ssh: CommandDefinition<
 				if (host) {
 					return resolve();
 				}
-				balena.models.device
-					.getApplicationInfo(deviceUuid)
-					.get('containerId')
+				getDeviceContainerInfo(deviceUuid)
+					.then(services =>
+						patterns.selectFromList('Chose the container to enter', services),
+					)
+					.then(container => container.containerId)
 					.then(resolve);
 			}).then(containerId => {
 				if (containerId != null) {
@@ -282,7 +286,6 @@ export const ssh: CommandDefinition<
 				return patterns.inferOrSelectDevice();
 			})
 			.then(uuid => {
-				// console.info(`Connecting to: ${uuid}`);
 				return balena.models.device.get(uuid);
 			})
 			.tap(device => {
